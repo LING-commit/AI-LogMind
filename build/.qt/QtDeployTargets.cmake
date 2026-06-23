@@ -1,8 +1,0 @@
-set(__QT_DEPLOY_TARGET_logmind-client_FILE /home/ling/WorkSpace/LogMind/build/src/client/logmind-client)
-set(__QT_DEPLOY_TARGET_logmind-client_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_logmind-stress-test_FILE /home/ling/WorkSpace/LogMind/build/tests/logmind-stress-test)
-set(__QT_DEPLOY_TARGET_logmind-stress-test_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_logmind-smoke-test_FILE /home/ling/WorkSpace/LogMind/build/tests/logmind-smoke-test)
-set(__QT_DEPLOY_TARGET_logmind-smoke-test_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_logmind-daemon_FILE /home/ling/WorkSpace/LogMind/build/logmind-daemon)
-set(__QT_DEPLOY_TARGET_logmind-daemon_TYPE EXECUTABLE)

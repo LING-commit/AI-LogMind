@@ -1,7 +1,0 @@
-<RCC>
-  <qresource prefix="/styles">
-    <file alias="resources/style.qss">/home/ling/WorkSpace/LogMind/src/client/resources/style.qss</file>
-    <file alias="resources/style_light.qss">/home/ling/WorkSpace/LogMind/src/client/resources/style_light.qss</file>
-  </qresource>
-</RCC>
-
