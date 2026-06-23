@@ -10,7 +10,49 @@ set(CMAKE_AUTOUIC ON)
 set(LOGMIND_PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # ── Compiler settings ──
-include(cmake/CompilerSettings.cmake)
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0091 NEW)
+endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+if(MSVC)
+  message(FATAL_ERROR "MSVC not supported; require GCC >= 11 or Clang >= 14")
+endif()
+add_library(logmind_compiler_settings INTERFACE)
+target_compile_options(logmind_compiler_settings INTERFACE
+  $<$<CXX_COMPILER_ID:GNU>:
+    -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion
+    -Wshadow -Wnon-virtual-dtor -Wold-style-cast
+    -Wcast-align -Wunused -Woverloaded-virtual
+    -Wformat=2 -Wmisleading-indentation -Wduplicated-cond
+    -Wduplicated-branches -Wlogical-op -Wnull-dereference
+    -Wuseless-cast -Wdouble-promotion
+  >
+  $<$<CXX_COMPILER_ID:Clang>:
+    -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion
+    -Wshadow -Wnon-virtual-dtor -Wold-style-cast
+    -Wcast-align -Wunused -Woverloaded-virtual
+    -Wformat=2 -Wnull-dereference -Wdouble-promotion
+  >
+)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
+option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)
+if(ENABLE_ASAN)
+  target_compile_options(logmind_compiler_settings INTERFACE -fsanitize=address -fno-omit-frame-pointer)
+  target_link_options(logmind_compiler_settings INTERFACE -fsanitize=address)
+endif()
+if(ENABLE_UBSAN)
+  target_compile_options(logmind_compiler_settings INTERFACE -fsanitize=undefined)
+  target_link_options(logmind_compiler_settings INTERFACE -fsanitize=undefined)
+endif()
+if(ENABLE_TSAN)
+  target_compile_options(logmind_compiler_settings INTERFACE -fsanitize=thread)
+  target_link_options(logmind_compiler_settings INTERFACE -fsanitize=thread)
+endif()
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # ── Build options ──
 option(BUILD_CLIENT "Build Qt6 client" OFF)
@@ -85,16 +127,6 @@ install(DIRECTORY include/logmind
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.h"
 )
-
-install(FILES cmake/PluginScan.cmake
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/logmind/cmake
-)
-
-if(CMAKE_INSTALL_SYSTEMD_SYSTEMDIR)
-  install(FILES docs/logmind-daemon.service
-    DESTINATION ${CMAKE_INSTALL_SYSTEMD_SYSTEMDIR}
-  )
-endif()
 
 # ── Plugin scanning ──
 if(IS_DIRECTORY "${PROJECT_SOURCE_DIR}/plugins")
