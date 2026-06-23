@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/ling/WorkSpace/LogMind/build/cmake_install.cmake",
+		"/home/ling/WorkSpace/LogMind/build/src/client/cmake_install.cmake",
+		"/home/ling/WorkSpace/LogMind/build/tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

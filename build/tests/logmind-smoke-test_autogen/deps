@@ -1,0 +1,8 @@
+logmind-smoke-test_autogen/timestamp: \
+	/home/ling/WorkSpace/LogMind/src/daemon/log_buffer.cpp \
+	/home/ling/WorkSpace/LogMind/src/daemon/pipeline.cpp \
+	/home/ling/WorkSpace/LogMind/src/daemon/plugin_api.cpp \
+	/home/ling/WorkSpace/LogMind/src/daemon/plugin_loader.cpp \
+	/home/ling/WorkSpace/LogMind/tests/CMakeLists.txt \
+	/home/ling/WorkSpace/LogMind/tests/smoke/smoke_test.cpp \
+	/usr/bin/cmake
