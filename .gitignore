@@ -1,2 +1,6 @@
 build/
 *.user
+scripts/
+tests/stress/stress_test
+tests/stress/stress_test_asan
+cmake/riscv64-toolchain.cmake
