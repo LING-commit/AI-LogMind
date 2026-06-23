@@ -25,13 +25,16 @@ DashboardWidget::DashboardWidget(QWidget* parent) : QWidget(parent) {
     layout->addStretch();
 }
 
+void DashboardWidget::setErrorCount(int count) {
+    m_errors_label->setText(QString::number(count));
+}
+
 void DashboardWidget::onStatsReceived(const QVariantMap& stats) {
     m_qps_label->setText(
         QString("%1 \u6761/s").arg(stats.value("qps").toDouble(), 0, 'f', 1));
     m_processed_label->setText(
         QString::number(stats.value("total_processed").toLongLong()));
-    m_errors_label->setText(
-        QString::number(stats.value("total_errors").toLongLong()));
+    // 错误数来自 LogModel::errorCountChanged，不由 daemon stats 覆盖
     m_alerts_label->setText(
         QString::number(stats.value("total_alerts").toLongLong()));
 }

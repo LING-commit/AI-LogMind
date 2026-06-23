@@ -14,10 +14,11 @@ DaemonCore::DaemonCore(const ConfigMgr& config, QObject* parent)
     , m_vector_store(build_vector_config(config))
 {
     m_log_buffer.set_on_entry_callback([this](const LogEntry& entry) {
-        if (m_dbus_adaptor) {
-            QVariantMap varmap = log_entry_to_varmap(entry);
-            emit m_dbus_adaptor->LogEntryReceived(varmap);
-        }
+        QVariantMap varmap = log_entry_to_varmap(entry);
+        QMetaObject::invokeMethod(this, [this, varmap]() {
+            if (m_dbus_adaptor)
+                emit m_dbus_adaptor->LogEntryReceived(varmap);
+        }, Qt::QueuedConnection);
     });
 }
 
@@ -163,6 +164,27 @@ bool DaemonCore::do_start_watcher() {
         auto pats = c->watch_patterns();
         all_patterns.insert(all_patterns.end(), pats.begin(), pats.end());
     }
+
+    // 无插件时从配置文件回退
+    if (all_patterns.empty() && m_config.is_loaded()) {
+        auto& json = m_config.data();
+        if (json.contains("log_dirs") && json["log_dirs"].is_array()) {
+            auto patterns = json.value("watch_patterns", nlohmann::json::array());
+            for (const auto& dir : json["log_dirs"]) {
+                if (patterns.empty()) {
+                    all_patterns.push_back(dir.get<std::string>() + "/*.log");
+                } else {
+                    for (const auto& pat : patterns) {
+                        all_patterns.push_back(
+                            dir.get<std::string>() + "/" + pat.get<std::string>());
+                    }
+                }
+            }
+        }
+        qInfo().noquote() << QString("FileWatcher: watching %1 patterns from config")
+                            .arg(all_patterns.size());
+    }
+
     if (!all_patterns.empty()) {
         m_file_watcher.add_patterns(all_patterns);
     }

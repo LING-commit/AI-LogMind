@@ -2,6 +2,7 @@
 #include <logmind/log_buffer.h>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 
 namespace logmind {
 
@@ -72,6 +73,15 @@ std::vector<LogEntry> Pipeline::run_collectors(
         fallback.level     = LogLevel::INFO;
         fallback.module    = "fallback";
         fallback.meta["source_file"] = source;
+
+        // 从原始行中猜测日志级别
+        std::string upper;
+        for (auto c : raw_line) upper.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(c))));
+        if (upper.find("FATAL") != std::string::npos)      fallback.level = LogLevel::FATAL;
+        else if (upper.find("ERROR") != std::string::npos) fallback.level = LogLevel::ERROR;
+        else if (upper.find("WARN")  != std::string::npos) fallback.level = LogLevel::WARN;
+        else if (upper.find("DEBUG") != std::string::npos) fallback.level = LogLevel::DEBUG;
+
         result.push_back(std::move(fallback));
         return result;
     }

@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_stats_timer, &QTimer::timeout, m_dbus, &DBusClient::fetchStats);
     m_stats_timer->start();
 
+    connect(m_log_model, &LogModel::errorCountChanged, m_dashboard, &DashboardWidget::setErrorCount);
+
     setWindowTitle("LogMind \u667a\u80fd\u65e5\u5fd7\u5206\u6790\u5e73\u53f0 - \u672a\u8fde\u63a5");
 }
 

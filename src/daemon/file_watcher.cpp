@@ -2,6 +2,7 @@
 #include <logmind/pipeline.h>
 #include <fstream>
 #include <iostream>
+#include <fnmatch.h>
 
 #ifdef __linux__
 #include <sys/inotify.h>
@@ -23,12 +24,13 @@ void FileWatcher::watch(const std::string& path) {
 }
 
 void FileWatcher::watch_directory(const std::string& dir, const std::string& pattern) {
-    (void)pattern;
-    // 扫描目录中所有匹配的文件
+    if (!std::filesystem::is_directory(dir)) return;
     for (const auto& entry : std::filesystem::directory_iterator(dir)) {
-        if (entry.is_regular_file()) {
-            watch(entry.path().string());
-        }
+        if (!entry.is_regular_file()) continue;
+        if (!pattern.empty() &&
+            fnmatch(pattern.c_str(), entry.path().filename().c_str(), 0) != 0)
+            continue;
+        watch(entry.path().string());
     }
 }
 
@@ -54,6 +56,15 @@ void FileWatcher::add_patterns(const std::vector<std::string>& patterns) {
 void FileWatcher::start() {
     if (m_running.exchange(true)) return;
 
+    // 初始化所有文件偏移到当前大小（只读新增行）
+    for (const auto& path : m_watch_paths) {
+        try {
+            m_file_sizes[path] = std::filesystem::file_size(path);
+        } catch (...) {
+            m_file_sizes[path] = 0;
+        }
+    }
+
 #ifdef __linux__
     m_inotify_fd = inotify_init1(IN_NONBLOCK);
     if (m_inotify_fd >= 0) {
@@ -69,14 +80,7 @@ void FileWatcher::start() {
     }
 #endif
 
-    // fallback: 轮询模式
-    for (const auto& path : m_watch_paths) {
-        try {
-            m_file_sizes[path] = std::filesystem::file_size(path);
-        } catch (...) {
-            m_file_sizes[path] = 0;
-        }
-    }
+    // fallback: 轮询模式（偏移已在上面初始化）
     m_thread = std::thread(&FileWatcher::poll_loop, this);
 }
 
@@ -115,12 +119,16 @@ void FileWatcher::inotify_loop() {
             if (it != m_watch_map.end()) {
                 auto& path = it->second;
                 std::ifstream file(path);
-                file.seekg(0, std::ios::end);
-                // 此处简化处理：实际需要维护文件偏移
+                if (!file.is_open()) { ptr += sizeof(struct inotify_event) + event->len; continue; }
+                auto& offset = m_file_sizes[path];
+                file.seekg(static_cast<std::streamoff>(offset));
                 std::string line;
                 while (std::getline(file, line)) {
                     m_pipeline.process_raw(path, line);
                 }
+                file.clear();
+                auto pos = file.tellg();
+                if (pos > 0) offset = static_cast<uintmax_t>(pos);
             }
             ptr += sizeof(struct inotify_event) + event->len;
         }

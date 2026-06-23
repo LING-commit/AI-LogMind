@@ -9,6 +9,7 @@ public:
 
 public slots:
     void onStatsReceived(const QVariantMap& stats);
+    void setErrorCount(int count);
 
 private:
     QLabel* m_qps_label;
