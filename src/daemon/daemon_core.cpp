@@ -199,6 +199,7 @@ void DaemonCore::do_stop() {
     if (m_dbus_adaptor) {
         QDBusConnection::sessionBus().unregisterObject("/com/logmind/Daemon");
         QDBusConnection::sessionBus().unregisterService("com.logmind.Daemon");
+        delete m_dbus_adaptor;
         m_dbus_adaptor = nullptr;
     }
 

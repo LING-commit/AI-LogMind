@@ -130,7 +130,8 @@ void DBusClient::queryLogsByTime(quint64 start_ns, quint64 end_ns, quint32 limit
     QDBusReply<QList<QVariantMap>> reply = m_iface->call(
         "QueryLogsByTime", start_ns, end_ns, limit);
     if (reply.isValid()) {
-        emit logsQueried(QVector<QVariantMap>::fromList(reply.value()));
+        auto list = reply.value();
+        emit logsQueried(QVector<QVariantMap>(list.begin(), list.end()));
     }
 }
 

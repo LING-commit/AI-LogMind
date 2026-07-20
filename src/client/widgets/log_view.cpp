@@ -38,29 +38,40 @@ void LogDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
     QRect r = option.rect.adjusted(4, 2, -4, -2);
     int h = r.height();
 
+    // \u2500\u2500 \u5217\u5e03\u5c40\uff08\u56fa\u5b9a\u987a\u5e8f\uff1a\u8272\u6761 | \u65f6\u95f4 | \u6765\u6e90 | \u7ea7\u522b\u5fbd\u7ae0 | \u6d88\u606f\uff09 \u2500\u2500
+    constexpr int kTimeX       = 12;
+    constexpr int kTimeWidth   = 100;
+    constexpr int kSourceX     = kTimeX + kTimeWidth;      // 112
+    constexpr int kSourceWidth = 140;
+    constexpr int kLevelX      = kSourceX + kSourceWidth + 8; // 260
+    constexpr int kLevelWidth  = 56;
+    constexpr int kMessageX    = kLevelX + kLevelWidth + 12;  // 328
+
     painter->fillRect(option.rect.x(), option.rect.y(), 3, option.rect.height(), color);
 
-    painter->setPen(QColor("#8B949E"));
     QFont mono("Cascadia Code, JetBrains Mono, monospace", 10);
     painter->setFont(mono);
-    painter->drawText(r.adjusted(12, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, ts);
+
+    painter->setPen(QColor("#8B949E"));
+    painter->drawText(r.adjusted(kTimeX, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, ts);
 
     painter->setPen(QColor("#58A6FF"));
-    QString sourceText = src.leftJustified(16, ' ', false);
-    painter->drawText(option.rect.adjusted(120, 0, 0, 0),
-                      Qt::AlignLeft | Qt::AlignVCenter, sourceText);
+    QString elidedSource = painter->fontMetrics().elidedText(
+        src, Qt::ElideMiddle, kSourceWidth - 8);
+    QRect sourceRect(option.rect.x() + kSourceX, option.rect.y(), kSourceWidth, option.rect.height());
+    painter->drawText(sourceRect, Qt::AlignLeft | Qt::AlignVCenter, elidedSource);
 
-    QRect levelRect(option.rect.x() + 260, option.rect.y() + 3, 52, h - 6);
+    QRect levelRect(option.rect.x() + kLevelX, option.rect.y() + 3, kLevelWidth - 4, h - 6);
     painter->setPen(color);
     painter->setBrush(color.darker(200));
     painter->drawRoundedRect(levelRect, 3, 3);
     painter->setPen(color.lighter());
     painter->drawText(levelRect, Qt::AlignCenter, level);
-    painter->setPen(QColor("#C9D1D9"));
 
+    painter->setPen(QColor("#C9D1D9"));
     QString elidedMsg = painter->fontMetrics().elidedText(
-        msg, Qt::ElideRight, option.rect.width() - 340);
-    painter->drawText(option.rect.adjusted(325, 0, -8, 0),
+        msg, Qt::ElideRight, option.rect.width() - kMessageX - 8);
+    painter->drawText(option.rect.adjusted(kMessageX, 0, -8, 0),
                       Qt::AlignLeft | Qt::AlignVCenter, elidedMsg);
 
     if (index.data(HasAiReportRole).toBool()) {
@@ -143,12 +154,10 @@ void LogView::contextMenuEvent(QContextMenuEvent* event) {
     auto* filterLvl = menu.addAction(
         QString("\u4ec5\u663e\u793a\u7ea7\u522b: %1").arg(item.level));
     connect(filterSrc, &QAction::triggered, this, [this, item] {
-        auto* bar = findChild<SearchBar*>();
-        if (bar) bar->setFilterText("source:" + item.source);
+        emit sourceFilterRequested(item.source);
     });
     connect(filterLvl, &QAction::triggered, this, [this, item] {
-        auto* bar = findChild<SearchBar*>();
-        if (bar) bar->setFilterText("level:" + item.level);
+        emit levelFilterRequested(item.level);
     });
 
     auto action = menu.exec(event->globalPos());

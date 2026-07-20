@@ -9,33 +9,28 @@ LogFilterModel::LogFilterModel(QObject* parent)
 
 void LogFilterModel::setFilterText(const QString& text) {
     m_text = text;
-    beginFilterChange();
-    endFilterChange();
+    invalidateFilter();
 }
 
 void LogFilterModel::setFilterLevel(const QString& level) {
     m_level = level;
-    beginFilterChange();
-    endFilterChange();
+    invalidateFilter();
 }
 
 void LogFilterModel::setFilterSource(const QString& source) {
     m_source = source;
-    beginFilterChange();
-    endFilterChange();
+    invalidateFilter();
 }
 
 void LogFilterModel::showErrorsOnly(bool only) {
     m_level = only ? "ERROR" : QString();
-    beginFilterChange();
-    endFilterChange();
+    invalidateFilter();
 }
 
 void LogFilterModel::setTimeRange(qint64 start_ns, qint64 end_ns) {
     m_time_start = start_ns;
     m_time_end   = end_ns;
-    beginFilterChange();
-    endFilterChange();
+    invalidateFilter();
 }
 
 void LogFilterModel::clearFilters() {
@@ -44,8 +39,7 @@ void LogFilterModel::clearFilters() {
     m_source.clear();
     m_time_start = 0;
     m_time_end   = 0;
-    beginFilterChange();
-    endFilterChange();
+    invalidateFilter();
 }
 
 int LogFilterModel::sourceRow(int proxy_row) const {

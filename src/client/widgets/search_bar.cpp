@@ -26,12 +26,15 @@ SearchBar::SearchBar(QWidget* parent) : QWidget(parent) {
 
     m_level_combo = new QComboBox(this);
     m_level_combo->addItems({"\u5168\u90e8", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"});
+    m_level_combo->setMinimumWidth(90);
     connect(m_level_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &SearchBar::onLevelSelected);
 
     m_source_combo = new QComboBox(this);
     m_source_combo->addItem("\u5168\u90e8\u6765\u6e90");
     m_source_combo->setEditable(true);
+    m_source_combo->setMinimumWidth(120);
+    m_source_combo->setMaximumWidth(180);
     connect(m_source_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &SearchBar::onSourceSelected);
 
@@ -75,9 +78,14 @@ SearchBar::SearchBar(QWidget* parent) : QWidget(parent) {
         emit sourceFilterChanged("");
     });
 
-    layout->addWidget(new QLabel("\U0001F50D", this));
+    auto* search_icon = new QLabel("\U0001F50D", this);
+    search_icon->setFixedWidth(20);
+    search_icon->setAlignment(Qt::AlignCenter);
+
+    layout->addWidget(search_icon);
     layout->addWidget(m_search_input, 1);
     layout->addWidget(m_level_combo);
+    layout->addWidget(m_source_combo);
     layout->addWidget(m_time_start);
     layout->addWidget(new QLabel("\u2192", this));
     layout->addWidget(m_time_end);

@@ -10,8 +10,13 @@ static DaemonCore* g_daemon = nullptr;
 
 static void signal_handler(int sig) {
     if (g_daemon) {
-        qInfo() << "Received signal" << sig << ", shutting down...";
-        g_daemon->stop();
+        if (sig == SIGHUP) {
+            qInfo() << "SIGHUP received, reloading plugins...";
+            g_daemon->reload_plugins();
+        } else {
+            qInfo() << "Received signal" << sig << ", shutting down...";
+            g_daemon->stop();
+        }
     }
 }
 
@@ -59,12 +64,7 @@ int main(int argc, char *argv[]) {
     // ── 安装信号处理 ──
     signal(SIGTERM, signal_handler);
     signal(SIGINT,  signal_handler);
-    signal(SIGHUP,  [](int) {
-        if (g_daemon) {
-            qInfo() << "SIGHUP received, reloading...";
-            g_daemon->reload_plugins();
-        }
-    });
+    signal(SIGHUP,  signal_handler);
 
     // ── 启动 daemon ──
     DaemonCore daemon(config);

@@ -1,6 +1,7 @@
 #include <logmind/pipeline.h>
 #include <logmind/log_buffer.h>
 #include <sstream>
+#include <iostream>
 #include <algorithm>
 #include <cctype>
 
@@ -105,6 +106,8 @@ std::vector<LogEntry> Pipeline::run_analyzers(std::vector<LogEntry> entries) {
             entries = analyzer->analyze(std::move(entries));
             if (entries.empty()) break;
         } catch (const std::exception& e) {
+            std::cerr << "Analyzer '" << analyzer->name()
+                      << "' threw exception: " << e.what() << std::endl;
             std::lock_guard<std::mutex> lock(m_mutex);
             m_stats.total_errors++;
         }
@@ -128,6 +131,8 @@ void Pipeline::run_alerts(const std::vector<LogEntry>& entries) {
             std::lock_guard<std::mutex> lock(m_mutex);
             m_stats.total_alerts++;
         } catch (const std::exception& e) {
+            std::cerr << "Alert '" << alert->name()
+                      << "' threw exception: " << e.what() << std::endl;
             std::lock_guard<std::mutex> lock(m_mutex);
             m_stats.total_errors++;
         }

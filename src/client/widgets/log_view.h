@@ -29,6 +29,8 @@ signals:
     void logDoubleClicked(const QString& logId);
     void contextMenuRequested(const QString& logId, const QPoint& pos);
     void analysisRequested(const QStringList& logIds);
+    void sourceFilterRequested(const QString& source);
+    void levelFilterRequested(const QString& level);
 
 protected:
     void rowsInserted(const QModelIndex& parent, int start, int end) override;

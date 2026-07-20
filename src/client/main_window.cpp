@@ -154,6 +154,8 @@ void MainWindow::setupConnections() {
     connect(m_search_bar, &SearchBar::sourceFilterChanged, m_filter_model, &LogFilterModel::setFilterSource);
     connect(m_search_bar, &SearchBar::timeRangeChanged,   m_filter_model, &LogFilterModel::setTimeRange);
     connect(m_log_view, &LogView::analysisRequested, this, &MainWindow::onAnalysisRequested);
+    connect(m_log_view, &LogView::sourceFilterRequested, m_filter_model, &LogFilterModel::setFilterSource);
+    connect(m_log_view, &LogView::levelFilterRequested, m_filter_model, &LogFilterModel::setFilterLevel);
     connect(m_log_view, &LogView::logDoubleClicked, this, [this](const QString&) {
         auto idx = m_log_view->currentIndex();
         if (!idx.isValid()) return;

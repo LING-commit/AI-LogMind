@@ -33,9 +33,6 @@ PluginPanel::PluginPanel(DBusClient* dbus, QWidget* parent)
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
 
-    m_list = new QListView(this);
-    m_list->setFrameShape(QFrame::NoFrame);
-    scroll->setWidget(m_list);
     layout->addWidget(scroll, 1);
 }
 

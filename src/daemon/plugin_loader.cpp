@@ -161,8 +161,12 @@ std::vector<IAlert*> PluginLoader::alerts() const {
 }
 
 IPlugin* PluginLoader::find(const std::string& name) const {
-    auto* ph = const_cast<PluginLoader*>(this)->find_handle(name);
-    return ph ? ph->instance : nullptr;
+    for (const auto& ph : m_plugins) {
+        if (ph.instance && ph.instance->name() == name) {
+            return ph.instance;
+        }
+    }
+    return nullptr;
 }
 
 std::vector<PluginInfo> PluginLoader::list_plugins() const {

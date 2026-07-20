@@ -121,6 +121,19 @@ void FileWatcher::inotify_loop() {
                 std::ifstream file(path);
                 if (!file.is_open()) { ptr += sizeof(struct inotify_event) + event->len; continue; }
                 auto& offset = m_file_sizes[path];
+
+                // 检查文件是否被截断
+                try {
+                    uintmax_t current_size = std::filesystem::file_size(path);
+                    if (current_size < offset) {
+                        std::cerr << "FileWatcher: File truncated, resetting offset: "
+                                  << path << std::endl;
+                        offset = 0;
+                    }
+                } catch (...) {
+                    offset = 0;
+                }
+
                 file.seekg(static_cast<std::streamoff>(offset));
                 std::string line;
                 while (std::getline(file, line)) {
@@ -141,6 +154,14 @@ void FileWatcher::poll_loop() {
         for (auto& [path, last_size] : m_file_sizes) {
             try {
                 uintmax_t current_size = std::filesystem::file_size(path);
+
+                // 检测文件是否被截断（truncate）
+                if (current_size < last_size) {
+                    std::cerr << "FileWatcher: File truncated, resetting offset: "
+                              << path << std::endl;
+                    last_size = 0;
+                }
+
                 if (current_size > last_size) {
                     std::ifstream file(path);
                     if (file.is_open()) {
