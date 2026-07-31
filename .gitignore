@@ -1,2 +1,5 @@
 build/
 *.user
+
+# Claude Code 的本地设置，含本机路径与主机地址，不应提交
+.claude/

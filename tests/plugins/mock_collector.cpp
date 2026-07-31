@@ -52,14 +52,14 @@ public:
 };
 
 extern "C" {
-    int plugin_abi_version() { return LOGMIND_ABI_VERSION; }
+    LOGMIND_PLUGIN_EXPORT int plugin_abi_version() { return LOGMIND_ABI_VERSION; }
 
-    IPlugin* create_plugin(CreateContext ctx) {
+    LOGMIND_PLUGIN_EXPORT IPlugin* create_plugin(CreateContext ctx) {
         (void)ctx;
         return new MockCollector();
     }
 
-    void destroy_plugin(IPlugin* p) {
+    LOGMIND_PLUGIN_EXPORT void destroy_plugin(IPlugin* p) {
         delete static_cast<MockCollector*>(p);
     }
 }

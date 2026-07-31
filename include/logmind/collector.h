@@ -23,6 +23,10 @@ public:
     virtual ParseResult parse(std::istream& stream) = 0;
     virtual ParseResult parse_file(const std::string& path);
 
+    // 逐行处理路径的入口。默认实现把单行包进 istringstream 转给 parse()，
+    // 高吞吐的采集器应当覆写它，省掉每行一次流对象构造。
+    virtual ParseResult parse_line(const std::string& line);
+
     virtual std::vector<std::string> watch_patterns() const { return {}; }
     virtual bool supports_incremental() const { return false; }
 };
