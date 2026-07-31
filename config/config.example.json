@@ -1,0 +1,46 @@
+{
+  "plugins_dir": "/usr/lib/logmind/plugins",
+
+  "log_dirs":       ["/var/log"],
+  "watch_patterns": ["*.log"],
+
+  "log_buffer": {
+    "capacity": 50000
+  },
+
+  "worker_threads": 4,
+
+  "alerts": {
+    "min_level": "ERROR",
+    "dedup_window_seconds": 60,
+    "max_alerts_per_minute": 60,
+    "dedup_cache_size": 4096
+  },
+
+  "plugins": {
+    "syslog-collector": {
+      "_comment": "extra_patterns 会通过 watch_patterns() 覆盖上面的 log_dirs，非必要不要设",
+      "extra_patterns": []
+    },
+    "threshold-analyzer": {
+      "window_seconds": 60,
+      "error_threshold": 5,
+      "drop_debug": false
+    },
+    "stdout-alert": {
+      "path": "-",
+      "max_entries_per_alert": 3
+    }
+  },
+
+  "vector_store": {
+    "db_path": "/var/lib/logmind/vectors.db",
+    "dim": 0,
+    "hnsw_m": 16,
+    "hnsw_ef_construction": 200,
+    "hnsw_ef_search": 64,
+    "max_elements": 1000000,
+    "auto_trim_threshold": 0,
+    "persist": true
+  }
+}
