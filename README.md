@@ -413,7 +413,7 @@ AI-LogMind/
 ## 联系方式
 
 - 作者: Liu Lingyu
-- Email: lingyu.liu@spacemit.com
+- Email: 258143494@qq.com
 - 项目主页: https://github.com/LING-commit/AI-LogMind
 
 ---
