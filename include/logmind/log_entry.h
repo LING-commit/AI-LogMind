@@ -67,7 +67,7 @@ struct PluginInfo {
     std::string version;
     std::string description;
     std::string author;
-    PluginType  type;
+    PluginType  type     = PluginType::Collector;
     bool        loaded   = false;
     bool        enabled  = true;
     std::string so_path;
@@ -79,7 +79,7 @@ struct PluginManifest {
     std::string version;
     std::string description;
     std::string author;
-    PluginType  type;
+    PluginType  type = PluginType::Collector;
     std::string license;
     bool        has_side_effects = false;
 };
